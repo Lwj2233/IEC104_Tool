@@ -316,6 +316,15 @@ typedef struct _I_M_EP_TF_INFO // 带 CP56Time2a 时标的继电保拌装置成�
     U8  bSec          ;   //秒
     U8  bMilliSec     ;   //毫秒
 }I_M_EP_TF_INFO;
+
+typedef struct _I_ASDU_INFO // ASDU 信息体结构
+{
+    U8  bTranType   ;   //类型表示
+    U8  bSQNum      ;   //可变结构限定词
+    U16 bTranCot    ;   //传输原因
+    U16 bAPDUaddr   ;   //APDU地址
+    U8  pinfo[1024] ;   //信息体信息
+}I_ASDU_INFO;
 //从站信息体结构 定义结束
 /***************************************************************************************/
 

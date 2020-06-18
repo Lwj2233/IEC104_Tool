@@ -6,6 +6,8 @@ IEC104Master::IEC104Master(QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::IEC104Master)
     , m_connectFlag(0)
+    , m_sendCount(0)       // 发送计数
+    , m_recvCount(0)       // 接收计数
 {
     ui->setupUi(this);
     /*设置表格是否充满，即行末不留空*/
@@ -50,8 +52,7 @@ void IEC104Master::timerOut()
         U1.bCtlArr2 = 0x00;
         U1.bCtlArr3 = 0x00;
         U1.bCtlArr4 = 0x00;
-        this->IEC104Send((const char*)&U1, sizeof(U1));
-
+        this->IEC104SendUFrm((const char*)&U1, sizeof(U1));
     }
     else if(m_connectFlag % 20 == 0){
         APCI_104 U2;    /* U 链路测试报文 */
@@ -61,7 +62,7 @@ void IEC104Master::timerOut()
         U2.bCtlArr2 = 0x00;
         U2.bCtlArr3 = 0x00;
         U2.bCtlArr4 = 0x00;
-        this->IEC104Send((const char*)&U2, sizeof(U2));
+        this->IEC104SendUFrm((const char*)&U2, sizeof(U2));
     }
 
     m_connectFlag++;
@@ -98,6 +99,7 @@ void IEC104Master::IEC104Recv(QByteArray ba)
     // I帧
     if(((p->bCtlArr1 & 0x01) == 0x00) && ((p->bCtlArr3 & 0x01) == 0x00)) {
         frameType = frameTypeI;
+        m_recvCount = (p->bCtlArr1 + p->bCtlArr2*256) >> 1;     // 将发送计数存到本地，变为接收计数
         AnalysisIFrm(ba);
     }
     // S帧
@@ -129,14 +131,39 @@ void IEC104Master::ConnectStatusSlot(bool s)
         m_timer->stop();
     }
 }
-void IEC104Master::IEC104Send(const char *c, quint32 len)
+void IEC104Master::IEC104SendIFrm(const char *c, quint32 len)
+{
+    static char cIFrm[2048];
+    APCI_104 *pI = (APCI_104 *)cIFrm;
+    pI->bHead = 0x68;
+    pI->bAPDUlen = len+4;
+    pI->bCtlArr1 = (m_sendCount << 1) & 0xFF;
+    pI->bCtlArr2 = (m_sendCount << 1 >> 8) & 0xFF;
+    pI->bCtlArr3 = (m_recvCount << 1) & 0xFF;
+    pI->bCtlArr4 = (m_recvCount << 1 >> 8) & 0xFF;
+    m_sendCount++;
+
+    memcpy(&(cIFrm[6]), c, len);
+
+    m_tcpClient->SendData(cIFrm, len+6);
+
+    QByteArray ba(cIFrm, len+6);
+    QString ret(ba.toHex(' ').toUpper());    // QByteArray转十六进制CString
+    this->setTableWidget(frameSend, frameTypeI, ret);
+}
+void IEC104Master::IEC104SendSFrm(const char *c, quint32 len)
+{
+
+}
+void IEC104Master::IEC104SendUFrm(const char *c, quint32 len)
 {
     m_tcpClient->SendData(c, len);
 
     QByteArray ba(c, len);
     QString ret(ba.toHex(' ').toUpper());    // QByteArray转十六进制CString
-    this->setTableWidget(frameSend, frameTypeUnknown, ret);
+    this->setTableWidget(frameSend, frameTypeU, ret);
 }
+
 QString FrameType2Str(enumFrameType frameType)
 {
     QString str;
@@ -174,18 +201,19 @@ void IEC104Master::setTableWidget(enumFrameRecvSend frameRS, enumFrameType frame
 
 void IEC104Master::on_pushButton_clicked()
 {
-    // 68 0E 02 00 DC 21 64 01 06 00 00 00 00 00 00 14
-    APCI_104 I;
-    I.bHead = 0x68;
-    I.bAPDUlen = 0x0E;
-    I.bCtlArr1 = 0x00;
-    I.bCtlArr2 = 0x00;
-    I.bCtlArr3 = 0x00;
-    I.bCtlArr4 = 0x00;
+    // 总召唤
+    static char c[128];
+    I_ASDU_INFO *p = (I_ASDU_INFO *)c;
+    p->bTranType  = 0x64    ;   //类型表示
+    p->bSQNum     = 0x01    ;   //可变结构限定词
+    p->bTranCot   = 0x0006  ;   //传输原因
+    p->bAPDUaddr  = 0x0001  ;   //APDU地址
+    p->pinfo[0]   = 0x00    ;   //信息体信息
+    p->pinfo[1]   = 0x00    ;   //信息体信息
+    p->pinfo[2]   = 0x00    ;   //信息体信息
+    p->pinfo[3]   = 0x14    ;   //信息体信息
 
-    static const char c[] = {0x68, 0x0E, 0x00, 0x00, 0x00, 0x00, 0x64, 0x01, 0x06, 0x00, 0x01, 0x00, 0x00, 0x00, 0x00, 0x14};
-
-    this->IEC104Send(c, sizeof(c));
+    this->IEC104SendIFrm(c, 10);
 }
 
 void IEC104Master::AnalysisIFrm(QByteArray ba)

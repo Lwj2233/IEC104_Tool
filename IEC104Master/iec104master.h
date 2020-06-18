@@ -33,7 +33,9 @@ private slots:
     void on_pushButton_clicked();
 
 private:
-    void IEC104Send(const char *, quint32);
+    void IEC104SendIFrm(const char *, quint32);
+    void IEC104SendSFrm(const char *, quint32);
+    void IEC104SendUFrm(const char *, quint32);
     void setTableWidget(enumFrameRecvSend frameRS, enumFrameType frameType, QString data);
 
 private:
@@ -75,6 +77,9 @@ private:
     void AnalysisIFrm_EP_TF(QByteArray);// 40   带 CP56Time2a 时标的继电保拌装置成组输出电路信息
     void AnalysisIFrm_EI_NA(QByteArray);// 70   初始化结束
 
+private:
+    uint16_t m_sendCount;       // 发送计数
+    uint16_t m_recvCount;       // 接收计数
 private:
     Ui::IEC104Master *ui;
     QThread *m_tcpClientTh;
