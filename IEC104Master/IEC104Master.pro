@@ -17,13 +17,10 @@ DEFINES += QT_DEPRECATED_WARNINGS
 
 SOURCES += \
     app.cpp \
-    main.cpp \
-    iec104master.cpp
+    main.cpp
 
 HEADERS += \
-    app.h \
-    IEC104.h \
-    iec104master.h
+    app.h
 
 FORMS +=
 
@@ -34,3 +31,4 @@ else: unix:!android: target.path = /opt/$${TARGET}/bin
 !isEmpty(target.path): INSTALLS += target
 
 include (./mytcpclient/mytcpclient.pri)
+include (./iec104master/iec104master.pri)
