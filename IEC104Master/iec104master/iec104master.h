@@ -38,8 +38,20 @@ class IEC104Master : public QMainWindow
     Q_OBJECT
 
 public:
-    IEC104Master(QWidget *parent = nullptr);
+    IEC104Master(QHostAddress addr, QWidget *parent = nullptr);
     ~IEC104Master();
+
+    void Connect();     // 连接
+    void DisConnect();  // 断开
+    float getYcData(uint32_t addr);         // 获取单个遥测数据
+    uint8_t getYxData(uint32_t addr);       // 获取单个遥信数据
+    QMap<uint32_t, float> getYcDatas();     // 获取所有遥测数据
+    QMap<uint32_t, uint8_t> getYxDatas();   // 获取所有遥信数据
+
+signals:
+    void upData(
+            QMap<uint32_t, uint8_t> m_data_yx,
+            QMap<uint32_t, float> m_data_yc);
 
 private slots:
     void timerOut();
@@ -47,7 +59,7 @@ private slots:
     void IEC104Recv(QByteArray);
     void ConnectStatusSlot(bool s);
 
-    void on_pushButton_clicked();
+    void IEC104SendIFrm_IC_NA();
 
 private:
     void IEC104SendIFrm(const char *, quint32);
@@ -103,6 +115,7 @@ private:
     QMap<uint32_t, uint8_t> m_data_yx;
     QMap<uint32_t, float> m_data_yc;
 private:
+    QHostAddress m_hostAddr;
     QThread *m_tcpClientTh;
     MyTcpClient *m_tcpClient;
 

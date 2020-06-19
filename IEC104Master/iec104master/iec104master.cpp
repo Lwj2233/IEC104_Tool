@@ -1,11 +1,12 @@
 #include "iec104master.h"
 #include <QDebug>
 
-IEC104Master::IEC104Master(QWidget *parent)
+IEC104Master::IEC104Master(QHostAddress addr, QWidget *parent)
     : QMainWindow(parent)
+    , m_hostAddr(addr)      // IP地址
     , m_connectFlag(0)
-    , m_sendCount(0)       // 发送计数
-    , m_recvCount(0)       // 接收计数
+    , m_sendCount(0)        // 发送计数
+    , m_recvCount(0)        // 接收计数
 {
     //ui->setupUi(this);
     ///*设置表格是否充满，即行末不留空*/
@@ -53,8 +54,7 @@ IEC104Master::IEC104Master(QWidget *parent)
                      this, &IEC104Master::timerOut);
 
     m_tcpClientTh = new QThread();
-    //m_tcpClient = new MyTcpClient(QHostAddress("127.0.0.1"), 2404);
-    m_tcpClient = new MyTcpClient(QHostAddress("192.168.1.101"), 2404);
+    m_tcpClient = new MyTcpClient(m_hostAddr, 2404);
     m_tcpClient->moveToThread(m_tcpClientTh);
     connect(m_tcpClient, &MyTcpClient::ConnectStatusSignal,
             this, &IEC104Master::ConnectStatusSlot);
@@ -62,7 +62,6 @@ IEC104Master::IEC104Master(QWidget *parent)
             this, &IEC104Master::IEC104Recv);
 
     m_tcpClientTh->start();
-    m_tcpClient->Connect();
 }
 
 IEC104Master::~IEC104Master()
@@ -70,8 +69,41 @@ IEC104Master::~IEC104Master()
 
 }
 
+void IEC104Master::Connect()     // 连接
+{
+    m_tcpClient->Connect();
+}
+
+void IEC104Master::DisConnect()  // 断开
+{
+    m_tcpClient->DisConnect();
+}
+
+float IEC104Master::getYcData(uint32_t addr)         // 获取单个遥测数据
+{
+    return m_data_yc.value(addr);
+}
+
+uint8_t IEC104Master::getYxData(uint32_t addr)       // 获取单个遥信数据
+{
+    return m_data_yx.value(addr);
+}
+
+QMap<uint32_t, float> IEC104Master::getYcDatas()     // 获取所有遥测数据
+{
+    return m_data_yc;
+}
+
+QMap<uint32_t, uint8_t> IEC104Master::getYxDatas()   // 获取所有遥信数据
+{
+    return m_data_yx;
+}
+
 void IEC104Master::timerOut()
 {
+    // 发送数据
+    emit upData(m_data_yx, m_data_yc);
+
     if(m_connectFlag == 0)  {   // 连接标志 0-刚连接好， 非0-连接发送过报文)
         APCI_104 U1;     /* U 格式启动帧 */
         U1.bHead = 0x68;
@@ -81,6 +113,12 @@ void IEC104Master::timerOut()
         U1.bCtlArr3 = 0x00;
         U1.bCtlArr4 = 0x00;
         this->IEC104SendUFrm((const char*)&U1, sizeof(U1));
+    }
+    else if(m_connectFlag == 5){
+        IEC104SendIFrm_IC_NA(); // 总召唤
+    }
+    else if(m_connectFlag % 300 == 0){
+        IEC104SendIFrm_IC_NA(); // 总召唤
     }
     else if(m_connectFlag % 20 == 0){
         APCI_104 U2;    /* U 链路测试报文 */
@@ -229,7 +267,8 @@ void IEC104Master::setTableWidget(enumFrameRecvSend frameRS, enumFrameType frame
     //ui->tableWidget->scrollToBottom();
 }
 
-void IEC104Master::on_pushButton_clicked()
+// 总召唤
+void IEC104Master::IEC104SendIFrm_IC_NA()
 {
     // 总召唤
     static char c[128];
