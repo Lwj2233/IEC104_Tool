@@ -1,8 +1,8 @@
 #include "mytcpclientthread.h"
 
-MyTcpClientThread::MyTcpClientThread(const QString &hostName, quint16 port, QObject *parent)
+MyTcpClientThread::MyTcpClientThread(QHostAddress addr, quint16 port, QObject *parent)
     : QObject(parent)
-    , m_hostName(hostName)  // 服务器地址
+    , m_hostAddr(addr)  // 服务器地址
     , m_port(port)          // 服务器端口
 {
     // 注册类型
@@ -104,7 +104,7 @@ void MyTcpClientThread::ConnectSlot()     // 连接
 {
     qDebug() << QThread::currentThread() << __FILE__ << __LINE__ << __FUNCTION__;
     // 连接主机
-    m_tcpSocket->connectToHost(m_hostName, m_port);
+    m_tcpSocket->connectToHost(m_hostAddr, m_port);
     if (m_tcpSocket->waitForConnected(1000)) {  // 连接超时等待时间
         qDebug() << QThread::currentThread() << __FILE__ << __LINE__ << __FUNCTION__
                  << "连接成功";

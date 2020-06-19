@@ -1,6 +1,6 @@
 #include "mytcpclient.h"
 
-MyTcpClient::MyTcpClient(const QString &hostName, quint16 port, QObject *parent) : QObject(parent)
+MyTcpClient::MyTcpClient(QHostAddress addr, quint16 port, QObject *parent) : QObject(parent)
 {
     // 注册类型
     qRegisterMetaType<QHostAddress>("QHostAddress");
@@ -9,7 +9,7 @@ MyTcpClient::MyTcpClient(const QString &hostName, quint16 port, QObject *parent)
     m_date.clear(); // 数据取清零
 
     m_tcpClientThreadTh = new QThread(this);
-    m_tcpClientThread = new MyTcpClientThread(hostName, port);
+    m_tcpClientThread = new MyTcpClientThread(addr, port);
     m_tcpClientThread->moveToThread(m_tcpClientThreadTh);
 
     // 连接

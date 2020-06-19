@@ -5,12 +5,13 @@
 #include <QtNetwork>
 #include <QTimer>
 #include <QMutex>
+#include <QHostAddress>
 
 class MyTcpClientThread : public QObject
 {
     Q_OBJECT
 public:
-    explicit MyTcpClientThread(const QString &hostName, quint16 port, QObject *parent = nullptr);
+    explicit MyTcpClientThread(QHostAddress addr, quint16 port, QObject *parent = nullptr);
     ~MyTcpClientThread();
 
 public:
@@ -39,8 +40,8 @@ private slots:
 private:
     QTcpSocket *m_tcpSocket;
 
-    QString m_hostName;     // 服务器IP
-    quint16 m_port;         // 服务器端口
+    QHostAddress m_hostAddr;            // 服务器IP
+    quint16 m_port;                     // 服务器端口
 
 
     QByteArray m_recvDate;              // 接收数据缓冲区

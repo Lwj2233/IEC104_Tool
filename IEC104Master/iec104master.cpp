@@ -55,8 +55,8 @@ IEC104Master::IEC104Master(QWidget *parent)
                      this, &IEC104Master::timerOut);
 
     m_tcpClientTh = new QThread();
-    //m_tcpClient = new MyTcpClient("127.0.0.1", 2404);
-    m_tcpClient = new MyTcpClient("192.168.1.101", 2404);
+    //m_tcpClient = new MyTcpClient(QHostAddress("127.0.0.1"), 2404);
+    m_tcpClient = new MyTcpClient(QHostAddress("192.168.1.101"), 2404);
     m_tcpClient->moveToThread(m_tcpClientTh);
     connect(m_tcpClient, &MyTcpClient::ConnectStatusSignal,
             this, &IEC104Master::ConnectStatusSlot);

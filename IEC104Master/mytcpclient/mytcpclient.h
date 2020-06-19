@@ -5,13 +5,14 @@
 #include <QtNetwork>
 #include <QTimer>
 #include <QThread>
+#include <QHostAddress>
 #include "mytcpclientthread.h"
 
 class MyTcpClient : public QObject
 {
     Q_OBJECT
 public:
-    explicit MyTcpClient(const QString &hostName, quint16 port, QObject *parent = nullptr);
+    explicit MyTcpClient(QHostAddress addr, quint16 port, QObject *parent = nullptr);
     ~MyTcpClient();
 
 // 对外的接口

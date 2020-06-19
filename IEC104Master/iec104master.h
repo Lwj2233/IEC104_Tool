@@ -7,6 +7,7 @@
 #include "app.h"
 #include <QTimer>
 #include <QTime>
+#include <QHostAddress>
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class IEC104Master; }
