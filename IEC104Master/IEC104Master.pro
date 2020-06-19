@@ -25,8 +25,8 @@ HEADERS += \
     IEC104.h \
     iec104master.h
 
-FORMS += \
-    iec104master.ui
+FORMS +=
+
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin

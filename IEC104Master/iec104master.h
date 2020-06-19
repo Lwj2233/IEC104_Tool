@@ -103,7 +103,6 @@ private:
     QMap<uint32_t, uint8_t> m_data_yx;
     QMap<uint32_t, float> m_data_yc;
 private:
-    Ui::IEC104Master *ui;
     QThread *m_tcpClientTh;
     MyTcpClient *m_tcpClient;
 

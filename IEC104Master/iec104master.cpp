@@ -1,54 +1,52 @@
 #include "iec104master.h"
-#include "ui_iec104master.h"
 #include <QDebug>
 
 IEC104Master::IEC104Master(QWidget *parent)
     : QMainWindow(parent)
-    , ui(new Ui::IEC104Master)
     , m_connectFlag(0)
     , m_sendCount(0)       // 发送计数
     , m_recvCount(0)       // 接收计数
 {
-    ui->setupUi(this);
-    /*设置表格是否充满，即行末不留空*/
-    ui->tableWidget->horizontalHeader()->setStretchLastSection(true);
-    /*设置tablewidget等宽*/
-    ui->tableWidget->horizontalHeader()->setSectionResizeMode(QHeaderView::Fixed);
-    ui->tableWidget->horizontalHeader()->resizeSection(0, 100); // 时间
-    ui->tableWidget->horizontalHeader()->resizeSection(1, 60);  // 收发
-    ui->tableWidget->horizontalHeader()->resizeSection(2, 60);  // 帧类型
-    // 表格使用交替色填充
-    ui->tableWidget->setAlternatingRowColors(true);
-    // 显示最后一行
-    ui->tableWidget->scrollToBottom();
-
-    /*设置表格是否充满，即行末不留空*/
-    ui->tableWidget_YX->horizontalHeader()->setStretchLastSection(true);
-    /*设置tablewidget等宽*/
-    ui->tableWidget_YX->horizontalHeader()->setSectionResizeMode(QHeaderView::Fixed);
-    ui->tableWidget_YX->horizontalHeader()->resizeSection(0, 60);   // 地址
-    ui->tableWidget_YX->horizontalHeader()->resizeSection(1, 60);   // 地址
-    ui->tableWidget_YX->horizontalHeader()->resizeSection(2, 60);   // 值
-    // 表格使用交替色填充
-    ui->tableWidget_YX->setAlternatingRowColors(true);
-    ui->tableWidget_YX->setRowCount(DATA_NUM_YX);
-
-    /*设置表格是否充满，即行末不留空*/
-    ui->tableWidget_YC->horizontalHeader()->setStretchLastSection(true);
-    /*设置tablewidget等宽*/
-    ui->tableWidget_YC->horizontalHeader()->setSectionResizeMode(QHeaderView::Fixed);
-    ui->tableWidget_YC->horizontalHeader()->resizeSection(0, 60);   // 地址
-    ui->tableWidget_YC->horizontalHeader()->resizeSection(1, 60);   // 地址
-    ui->tableWidget_YC->horizontalHeader()->resizeSection(2, 60);   // 值
-    // 表格使用交替色填充
-    ui->tableWidget_YC->setAlternatingRowColors(true);
-    ui->tableWidget_YC->setRowCount(DATA_NUM_YC);
-
-    ui->dockWidget->setWindowTitle("报文");
-    ui->dockWidget_2->setWindowTitle("遥信");
-    ui->dockWidget_3->setWindowTitle("遥测");
-    tabifyDockWidget(ui->dockWidget, ui->dockWidget_2);
-    tabifyDockWidget(ui->dockWidget, ui->dockWidget_3);
+    //ui->setupUi(this);
+    ///*设置表格是否充满，即行末不留空*/
+    //ui->tableWidget->horizontalHeader()->setStretchLastSection(true);
+    ///*设置tablewidget等宽*/
+    //ui->tableWidget->horizontalHeader()->setSectionResizeMode(QHeaderView::Fixed);
+    //ui->tableWidget->horizontalHeader()->resizeSection(0, 100); // 时间
+    //ui->tableWidget->horizontalHeader()->resizeSection(1, 60);  // 收发
+    //ui->tableWidget->horizontalHeader()->resizeSection(2, 60);  // 帧类型
+    //// 表格使用交替色填充
+    //ui->tableWidget->setAlternatingRowColors(true);
+    //// 显示最后一行
+    //ui->tableWidget->scrollToBottom();
+    //
+    ///*设置表格是否充满，即行末不留空*/
+    //ui->tableWidget_YX->horizontalHeader()->setStretchLastSection(true);
+    ///*设置tablewidget等宽*/
+    //ui->tableWidget_YX->horizontalHeader()->setSectionResizeMode(QHeaderView::Fixed);
+    //ui->tableWidget_YX->horizontalHeader()->resizeSection(0, 60);   // 地址
+    //ui->tableWidget_YX->horizontalHeader()->resizeSection(1, 60);   // 地址
+    //ui->tableWidget_YX->horizontalHeader()->resizeSection(2, 60);   // 值
+    //// 表格使用交替色填充
+    //ui->tableWidget_YX->setAlternatingRowColors(true);
+    //ui->tableWidget_YX->setRowCount(DATA_NUM_YX);
+    //
+    ///*设置表格是否充满，即行末不留空*/
+    //ui->tableWidget_YC->horizontalHeader()->setStretchLastSection(true);
+    ///*设置tablewidget等宽*/
+    //ui->tableWidget_YC->horizontalHeader()->setSectionResizeMode(QHeaderView::Fixed);
+    //ui->tableWidget_YC->horizontalHeader()->resizeSection(0, 60);   // 地址
+    //ui->tableWidget_YC->horizontalHeader()->resizeSection(1, 60);   // 地址
+    //ui->tableWidget_YC->horizontalHeader()->resizeSection(2, 60);   // 值
+    //// 表格使用交替色填充
+    //ui->tableWidget_YC->setAlternatingRowColors(true);
+    //ui->tableWidget_YC->setRowCount(DATA_NUM_YC);
+    //
+    //ui->dockWidget->setWindowTitle("报文");
+    //ui->dockWidget_2->setWindowTitle("遥信");
+    //ui->dockWidget_3->setWindowTitle("遥测");
+    //tabifyDockWidget(ui->dockWidget, ui->dockWidget_2);
+    //tabifyDockWidget(ui->dockWidget, ui->dockWidget_3);
 
     m_timer = new QTimer();
     QObject::connect(m_timer, &QTimer::timeout,
@@ -69,7 +67,7 @@ IEC104Master::IEC104Master(QWidget *parent)
 
 IEC104Master::~IEC104Master()
 {
-    delete ui;
+
 }
 
 void IEC104Master::timerOut()
@@ -220,15 +218,15 @@ void IEC104Master::setTableWidget(enumFrameRecvSend frameRS, enumFrameType frame
     QTime current_time =QTime::currentTime();
     QString strTime = current_time.toString("hh:mm:ss.zzz");
 
-    int row = ui->tableWidget->rowCount();
-    ui->tableWidget->insertRow(row);
-
-    ui->tableWidget->setItem(row, 0, new QTableWidgetItem(strTime));
-    ui->tableWidget->setItem(row, 1, new QTableWidgetItem((frameRS==frameRecv)?"R":"S"));
-    ui->tableWidget->setItem(row, 2, new QTableWidgetItem(FrameType2Str(frameType)));
-    ui->tableWidget->setItem(row, 3, new QTableWidgetItem(data));
-    // 显示最后一行
-    ui->tableWidget->scrollToBottom();
+    //int row = ui->tableWidget->rowCount();
+    //ui->tableWidget->insertRow(row);
+    //
+    //ui->tableWidget->setItem(row, 0, new QTableWidgetItem(strTime));
+    //ui->tableWidget->setItem(row, 1, new QTableWidgetItem((frameRS==frameRecv)?"R":"S"));
+    //ui->tableWidget->setItem(row, 2, new QTableWidgetItem(FrameType2Str(frameType)));
+    //ui->tableWidget->setItem(row, 3, new QTableWidgetItem(data));
+    //// 显示最后一行
+    //ui->tableWidget->scrollToBottom();
 }
 
 void IEC104Master::on_pushButton_clicked()
@@ -376,13 +374,13 @@ void IEC104Master::AnalysisIFrm_SP_NA(QByteArray ba)// 1	单点遥信变位
         addr = (uint8_t)p->InfoAddr1 + (uint8_t)p->InfoAddr2*256 + (uint8_t)p->InfoAddr3*256*256;
         value = p->InfoData;
         //qDebug() << __FILE__ << __LINE__ << __FUNCTION__ << QString("0x%1 : %2").arg(addr, 6, 16, QLatin1Char('0')).arg(value);
-        int row = addr - ADDR_START_YX;
-        ui->tableWidget_YX->setItem(row, 0, new QTableWidgetItem(QString::number(addr)));
-        ui->tableWidget_YX->setItem(row, 1, new QTableWidgetItem(QString::number(addr, 16)));
-        ui->tableWidget_YX->setItem(row, 2, new QTableWidgetItem(QString::number(value)));
-        ui->tableWidget_YX->setItem(row, 3, new QTableWidgetItem(App::YX_Names.at(row)));
         m_data_yx.insert(addr, value);
         p++;
+        int row = addr - ADDR_START_YX;
+        //ui->tableWidget_YX->setItem(row, 0, new QTableWidgetItem(QString::number(addr)));
+        //ui->tableWidget_YX->setItem(row, 1, new QTableWidgetItem(QString::number(addr, 16)));
+        //ui->tableWidget_YX->setItem(row, 2, new QTableWidgetItem(QString::number(value)));
+        //ui->tableWidget_YX->setItem(row, 3, new QTableWidgetItem(App::YX_Names.at(row)));
     }
     //qDebug() << __FILE__ << __LINE__ << __FUNCTION__ << m_data_yx;
 }
@@ -464,11 +462,11 @@ void IEC104Master::AnalysisIFrm_ME_NC_SPONT(QByteArray ba)      // 短浮点数_
         m_data_yc.insert(addr, value);
         p++;
         //qDebug() << __FILE__ << __LINE__ << __FUNCTION__ << QString("0x%1 : %2").arg(addr, 6, 16, QLatin1Char('0')).arg(QString::number(value, 'f'));
-        int row = addr - ADDR_START_YC;
-        ui->tableWidget_YC->setItem(row, 0, new QTableWidgetItem(QString::number(addr)));
-        ui->tableWidget_YC->setItem(row, 1, new QTableWidgetItem(QString::number(addr, 16)));
-        ui->tableWidget_YC->setItem(row, 2, new QTableWidgetItem(QString::number(value)));
-        ui->tableWidget_YC->setItem(row, 3, new QTableWidgetItem(App::YC_Names.at(row)));
+        //int row = addr - ADDR_START_YC;
+        //ui->tableWidget_YC->setItem(row, 0, new QTableWidgetItem(QString::number(addr)));
+        //ui->tableWidget_YC->setItem(row, 1, new QTableWidgetItem(QString::number(addr, 16)));
+        //ui->tableWidget_YC->setItem(row, 2, new QTableWidgetItem(QString::number(value)));
+        //ui->tableWidget_YC->setItem(row, 3, new QTableWidgetItem(App::YC_Names.at(row)));
     }
     //qDebug() << __FILE__ << __LINE__ << __FUNCTION__ << m_data_yc;
 }
@@ -482,20 +480,20 @@ void IEC104Master::AnalysisIFrm_ME_NC_INTROGEN(QByteArray ba)   // 短浮点数_
     //uint16_t wAPDUaddr = ba.at(10)+256*ba.at(11);         // 站地址
 
     uint32_t startAddr = (uint8_t)ba.at(12) + (uint8_t)ba.at(13)*256 + (uint8_t)ba.at(14)*256*256;
-     char *c = ba.data() + 15;
-     for(int i = 0; i < bSQNum; i++) {
-         I_M_ME_NC_INFO *p = (I_M_ME_NC_INFO *)(c + i*5);
-         addr = startAddr + i;
-         value = p->InfoData;
-         m_data_yc.insert(addr, value);
-         //qDebug() << __FILE__ << __LINE__ << __FUNCTION__ << QString("0x%1 : %2").arg(addr, 6, 16, QLatin1Char('0')).arg(QString::number(value, 'f'));
-         int row = addr - ADDR_START_YC;
-         ui->tableWidget_YC->setItem(row, 0, new QTableWidgetItem(QString::number(addr)));
-         ui->tableWidget_YC->setItem(row, 1, new QTableWidgetItem(QString::number(addr, 16)));
-         ui->tableWidget_YC->setItem(row, 2, new QTableWidgetItem(QString::number(value)));
-         ui->tableWidget_YC->setItem(row, 3, new QTableWidgetItem(App::YC_Names.at(row)));
-     }
-     //qDebug() << __FILE__ << __LINE__ << __FUNCTION__ << m_data_yc;
+    I_M_ME_NC_INFO *p = (I_M_ME_NC_INFO *)(ba.data() + 15);
+    for(int i = 0; i < bSQNum; i++) {
+        addr = startAddr + i;
+        value = p->InfoData;
+        m_data_yc.insert(addr, value);
+        p++;
+        //qDebug() << __FILE__ << __LINE__ << __FUNCTION__ << QString("0x%1 : %2").arg(addr, 6, 16, QLatin1Char('0')).arg(QString::number(value, 'f'));
+        //int row = addr - ADDR_START_YC;
+        //ui->tableWidget_YC->setItem(row, 0, new QTableWidgetItem(QString::number(addr)));
+        //ui->tableWidget_YC->setItem(row, 1, new QTableWidgetItem(QString::number(addr, 16)));
+        //ui->tableWidget_YC->setItem(row, 2, new QTableWidgetItem(QString::number(value)));
+        //ui->tableWidget_YC->setItem(row, 3, new QTableWidgetItem(App::YC_Names.at(row)));
+    }
+    //qDebug() << __FILE__ << __LINE__ << __FUNCTION__ << m_data_yc;
 }
 void IEC104Master::AnalysisIFrm_ME_TC(QByteArray ba)// 14   带短时标的短浮点数
 {
