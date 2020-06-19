@@ -50,6 +50,8 @@ typedef unsigned long long U64;
 
 using namespace std;
 
+#pragma pack (1) /*指定按1字节对齐*/
+
 /***************************************************************************************/
 enum STI104             //子站传输类型标志
 {
@@ -228,6 +230,15 @@ typedef struct _I_M_ME_NC_INFO // 短浮点数 信息体结构
     float InfoData    ;   //信息体元素
     U8  InfoBodyDec   ;   //信息体描述
 }I_M_ME_NC_INFO;
+
+typedef struct _I_M_ME_NC_ADDR_INFO // 带地址的短浮点数 信息体结构
+{
+    U8  InfoAddr1     ;   //信息体地址1
+    U8  InfoAddr2     ;   //信息体地址2
+    U8  InfoAddr3     ;   //信息体地址3   信息体地低位在前，高位在后
+    float InfoData    ;   //信息体元素
+    U8  InfoBodyDec   ;   //信息体描述
+}I_M_ME_NC_ADDR_INFO;
 
 typedef struct _I_M_IT_NA_INFO // 累计值 信息体结构
 {
@@ -412,5 +423,6 @@ typedef enum _enumFrameType {
     frameTypeS,             // S帧
     frameTypeU              // U帧
 }enumFrameType;
+#pragma pack () /*取消指定对齐，恢复缺省对齐*/
 
 #endif // IEC104_H

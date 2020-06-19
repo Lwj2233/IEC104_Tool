@@ -63,8 +63,8 @@ IEC104Master::IEC104Master(QWidget *parent)
     connect(m_tcpClient, &MyTcpClient::ReadDataSignal,
             this, &IEC104Master::IEC104Recv);
 
-    m_tcpClient->Connect();
     m_tcpClientTh->start();
+    m_tcpClient->Connect();
 }
 
 IEC104Master::~IEC104Master()
@@ -432,16 +432,37 @@ void IEC104Master::AnalysisIFrm_ME_TB(QByteArray ba)// 12   带短时标带品�
 }
 void IEC104Master::AnalysisIFrm_ME_NC(QByteArray ba)// 13   短浮点数
 {
+    //uint8_t bTranType = ba.at(6);                         // 类型
+    //uint8_t bSQNum = (uint8_t)ba.at(7) - (uint8_t)0x80;   // 可变结构限定词
+    uint16_t wTranCot = ba.at(8)+256*ba.at(9);              // 传输原因
+    //uint16_t wAPDUaddr = ba.at(10)+256*ba.at(11);         // 站地址
+    switch(wTranCot) {
+    case INTROGEN_104:      // 响应总召唤
+        AnalysisIFrm_ME_NC_INTROGEN(ba);
+        break;
+    case SPONT_104:         // 变换上传
+        AnalysisIFrm_ME_NC_SPONT(ba);
+        break;
+    }
+
+
+}
+
+void IEC104Master::AnalysisIFrm_ME_NC_SPONT(QByteArray ba)      // 短浮点数_突发上传
+{
     uint32_t addr;
     float value;
-    uint32_t startAddr = (uint8_t)ba.at(12) + (uint8_t)ba.at(13)*256 + (uint8_t)ba.at(14)*256*256;
-    uint8_t bSQNum = (uint8_t)ba.at(7) - (uint8_t)0x80;//sizeof(I_M_ME_NC_INFO);   // 可变结构限定词 - 3 = 数据个数
-    char *c = ba.data() + 15;
+    //uint8_t bTranType = ba.at(6);                         // 类型
+    uint8_t bSQNum = (uint8_t)ba.at(7);//- (uint8_t)0x80;     // 可变结构限定词
+    //uint16_t wTranCot = ba.at(8)+256*ba.at(9);            // 传输原因
+    //uint16_t wAPDUaddr = ba.at(10)+256*ba.at(11);         // 站地址
+
+    I_M_ME_NC_ADDR_INFO *p = (I_M_ME_NC_ADDR_INFO *)(ba.data() + 12);
     for(int i = 0; i < bSQNum; i++) {
-        I_M_ME_NC_INFO *p = (I_M_ME_NC_INFO *)(c + i*5);
-        addr = startAddr + i;
+        addr = (uint8_t)p->InfoAddr1 + (uint8_t)p->InfoAddr2*256 + (uint8_t)p->InfoAddr3*256*256;
         value = p->InfoData;
         m_data_yc.insert(addr, value);
+        p++;
         //qDebug() << __FILE__ << __LINE__ << __FUNCTION__ << QString("0x%1 : %2").arg(addr, 6, 16, QLatin1Char('0')).arg(QString::number(value, 'f'));
         int row = addr - ADDR_START_YC;
         ui->tableWidget_YC->setItem(row, 0, new QTableWidgetItem(QString::number(addr)));
@@ -450,6 +471,31 @@ void IEC104Master::AnalysisIFrm_ME_NC(QByteArray ba)// 13   短浮点数
         ui->tableWidget_YC->setItem(row, 3, new QTableWidgetItem(App::YC_Names.at(row)));
     }
     //qDebug() << __FILE__ << __LINE__ << __FUNCTION__ << m_data_yc;
+}
+void IEC104Master::AnalysisIFrm_ME_NC_INTROGEN(QByteArray ba)   // 短浮点数_响应总召唤
+{
+    uint32_t addr;
+    float value;
+    //uint8_t bTranType = ba.at(6);                         // 类型
+    uint8_t bSQNum = (uint8_t)ba.at(7) - (uint8_t)0x80;   // 可变结构限定词
+    //uint16_t wTranCot = ba.at(8)+256*ba.at(9);              // 传输原因
+    //uint16_t wAPDUaddr = ba.at(10)+256*ba.at(11);         // 站地址
+
+    uint32_t startAddr = (uint8_t)ba.at(12) + (uint8_t)ba.at(13)*256 + (uint8_t)ba.at(14)*256*256;
+     char *c = ba.data() + 15;
+     for(int i = 0; i < bSQNum; i++) {
+         I_M_ME_NC_INFO *p = (I_M_ME_NC_INFO *)(c + i*5);
+         addr = startAddr + i;
+         value = p->InfoData;
+         m_data_yc.insert(addr, value);
+         //qDebug() << __FILE__ << __LINE__ << __FUNCTION__ << QString("0x%1 : %2").arg(addr, 6, 16, QLatin1Char('0')).arg(QString::number(value, 'f'));
+         int row = addr - ADDR_START_YC;
+         ui->tableWidget_YC->setItem(row, 0, new QTableWidgetItem(QString::number(addr)));
+         ui->tableWidget_YC->setItem(row, 1, new QTableWidgetItem(QString::number(addr, 16)));
+         ui->tableWidget_YC->setItem(row, 2, new QTableWidgetItem(QString::number(value)));
+         ui->tableWidget_YC->setItem(row, 3, new QTableWidgetItem(App::YC_Names.at(row)));
+     }
+     //qDebug() << __FILE__ << __LINE__ << __FUNCTION__ << m_data_yc;
 }
 void IEC104Master::AnalysisIFrm_ME_TC(QByteArray ba)// 14   带短时标的短浮点数
 {

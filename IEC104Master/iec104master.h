@@ -73,6 +73,8 @@ private:
     void AnalysisIFrm_ME_NB(QByteArray);// 11   带品质描述的比例系数
     void AnalysisIFrm_ME_TB(QByteArray);// 12   带短时标带品质描述的比例系数
     void AnalysisIFrm_ME_NC(QByteArray);// 13   短浮点数
+    void AnalysisIFrm_ME_NC_SPONT(QByteArray);      // 短浮点数_突发上传
+    void AnalysisIFrm_ME_NC_INTROGEN(QByteArray);   // 短浮点数_响应总召唤
     void AnalysisIFrm_ME_TC(QByteArray);// 14   带短时标的短浮点数
     void AnalysisIFrm_IT_NA(QByteArray);// 15   累计值
     void AnalysisIFrm_IT_TA(QByteArray);// 16   带短时标的累计值

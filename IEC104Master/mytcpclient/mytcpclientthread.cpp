@@ -10,6 +10,8 @@ MyTcpClientThread::MyTcpClientThread(QHostAddress addr, quint16 port, QObject *p
     qRegisterMetaType<bool>("bool");
 
     m_recvDate.clear();
+    m_frameDatas.clear();
+
     m_timer = new QTimer(this);
     QObject::connect(m_timer, &QTimer::timeout,
                      this, &MyTcpClientThread::timerOut);
@@ -139,10 +141,11 @@ void MyTcpClientThread::timerOut()
 {
     static QByteArray frameData;
 
+    m_mutex.lock();
     if(m_frameDatas.isEmpty()) {
+        m_mutex.unlock();
         return;
     }
-    m_mutex.lock();
     frameData = m_frameDatas.at(0);             // 取第1个
     m_frameDatas.removeFirst();                 // 删除第1个
     m_mutex.unlock();
