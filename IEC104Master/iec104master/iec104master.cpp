@@ -219,9 +219,9 @@ void IEC104Master::IEC104SendIFrm(const char *c, quint32 len)
 
     memcpy(&(cIFrm[6]), c, len);
 
-    m_tcpClient->SendData(cIFrm, len+6);
+    static QByteArray ba(cIFrm, len+6);
+    m_tcpClient->SendData(ba);
 
-    QByteArray ba(cIFrm, len+6);
     QString ret(ba.toHex(' ').toUpper());    // QByteArray转十六进制CString
     this->setTableWidget(frameSend, frameTypeI, ret);
 }
@@ -231,9 +231,9 @@ void IEC104Master::IEC104SendSFrm(const char *c, quint32 len)
 }
 void IEC104Master::IEC104SendUFrm(const char *c, quint32 len)
 {
-    m_tcpClient->SendData(c, len);
+    static QByteArray ba(c, len);
+    m_tcpClient->SendData(ba);
 
-    QByteArray ba(c, len);
     QString ret(ba.toHex(' ').toUpper());    // QByteArray转十六进制CString
     this->setTableWidget(frameSend, frameTypeU, ret);
 }

@@ -20,7 +20,7 @@ public:
 public slots:
     void ConnectSlot();     // 连接
     void DisConnectSlot();  // 断开
-    void SendDataSlot(const char *, const quint32 len);
+    void SendDataSlot(QByteArray ba);
 
 // 对内的槽函数
 private slots:

@@ -51,10 +51,10 @@ void MyTcpClient::DisConnect()  // 断开
     emit DisConnectSignal();    // 给 TcpThread 发送断开信号
 }
 
-void MyTcpClient::SendData(const char *c, const uint32_t len)
+void MyTcpClient::SendData(QByteArray ba)
 {
     qDebug() << QThread::currentThread() << __FILE__ << __LINE__ << __FUNCTION__;
-    emit SendDataSignal(c, len);    // 给 TcpThread 发送 发数据信号
+    emit SendDataSignal(ba);    // 给 TcpThread 发送 发数据信号
 }
 
 /***********************************************************************************************

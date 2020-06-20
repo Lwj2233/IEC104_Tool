@@ -127,10 +127,10 @@ void MyTcpClientThread::DisConnectSlot()  // 断开
     emit ConnectStatusSignal(false);
 }
 
-void MyTcpClientThread::SendDataSlot(const char *data, const quint32 len)
+void MyTcpClientThread::SendDataSlot(QByteArray ba)
 {
     qDebug() << QThread::currentThread() << __FILE__ << __LINE__ << __FUNCTION__;
-    m_tcpSocket->write(data, len);
+    m_tcpSocket->write(ba);
 }
 
 /***********************************************************************************************

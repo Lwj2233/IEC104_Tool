@@ -19,7 +19,7 @@ public:
 public slots:
     void Connect();     // 连接
     void DisConnect();  // 断开
-    void SendData(const char *, const quint32 len);
+    void SendData(QByteArray ba);
 
 // 对外的信号
 signals:
@@ -37,7 +37,7 @@ private slots:
 signals:
     void ConnectSignal();     // 连接
     void DisConnectSignal();  // 断开
-    void SendDataSignal(const char *, const quint32 len);
+    void SendDataSignal(QByteArray ba);
 
 private:
     MyTcpClientThread *m_tcpClientThread;
