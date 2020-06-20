@@ -1,9 +1,11 @@
 #include "iec104master.h"
 #include <QDebug>
 
-IEC104Master::IEC104Master(QHostAddress addr, QWidget *parent)
+IEC104Master::IEC104Master(QHostAddress addr, int id, QWidget *parent)
     : QMainWindow(parent)
     , m_hostAddr(addr)      // IP地址
+    , m_id(id)
+    , m_isConnect(0)        // TCP是否已连接
     , m_connectFlag(0)
     , m_sendCount(0)        // 发送计数
     , m_recvCount(0)        // 接收计数
@@ -98,6 +100,10 @@ QMap<uint32_t, uint8_t> IEC104Master::getYxDatas()   // 获取所有遥信数据
 {
     return m_data_yx;
 }
+int IEC104Master::getIsConnect()                     // 获取TCP连接状态
+{
+    return m_isConnect;
+}
 
 void IEC104Master::timerOut()
 {
@@ -190,10 +196,12 @@ void IEC104Master::ConnectStatusSlot(bool s)
 {
     qDebug() << "Connect Status " << m_hostAddr.toString() << s;
     if(s == 1) {
+        m_isConnect = 1;        // TCP已连接
         m_connectFlag = 0;      // 连接标志 0-刚连接好， 非0-连接发送过报文
         m_timer->start(1000);
     }
     else {
+        m_isConnect = 0;        // TCP已断开
         m_timer->stop();
     }
 }

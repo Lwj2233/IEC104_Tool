@@ -38,7 +38,7 @@ class IEC104Master : public QMainWindow
     Q_OBJECT
 
 public:
-    IEC104Master(QHostAddress addr, QWidget *parent = nullptr);
+    IEC104Master(QHostAddress addr, int id = 0, QWidget *parent = nullptr);
     ~IEC104Master();
 
     void Connect();     // 连接
@@ -47,6 +47,8 @@ public:
     uint8_t getYxData(uint32_t addr);       // 获取单个遥信数据
     QMap<uint32_t, float> getYcDatas();     // 获取所有遥测数据
     QMap<uint32_t, uint8_t> getYxDatas();   // 获取所有遥信数据
+
+    int getIsConnect();                     // 获取TCP连接状态
 
 signals:
     void upData(
@@ -116,11 +118,12 @@ private:
     QMap<uint32_t, float> m_data_yc;
 private:
     QHostAddress m_hostAddr;
+    int m_id;
     QThread *m_tcpClientTh;
     MyTcpClient *m_tcpClient;
 
     QTimer *m_timer;
-
+    int m_isConnect;        // TCP是否已连接
     int m_connectFlag;      // 连接标志 0-刚连接好， 非0-连接发送过报文
 };
 #endif // IEC104MASTER_H
