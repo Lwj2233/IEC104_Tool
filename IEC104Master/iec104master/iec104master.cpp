@@ -188,7 +188,7 @@ void IEC104Master::IEC104Recv(QByteArray ba)
 
 void IEC104Master::ConnectStatusSlot(bool s)
 {
-    qDebug() << "Connect Status " << s;
+    qDebug() << "Connect Status " << m_hostAddr.toString() << s;
     if(s == 1) {
         m_connectFlag = 0;      // 连接标志 0-刚连接好， 非0-连接发送过报文
         m_timer->start(1000);
