@@ -64,6 +64,13 @@ IEC104Master::IEC104Master(QHostAddress addr, int id, QWidget *parent)
             this, &IEC104Master::IEC104Recv);
 
     m_tcpClientTh->start();
+
+    // PCS CCU通讯状态，初始赋值
+    m_data_yx.insert(0x0009, 1);
+    m_data_yx.insert(0x00B3, 1);
+    // PCS CCM通讯状态，初始赋值
+    m_data_yx.insert(0x00A7, 1);
+    m_data_yx.insert(0x0151, 1);
 }
 
 IEC104Master::~IEC104Master()
